@@ -56,7 +56,8 @@ differing members:
   ```json
   {
       "data": {
-          "cmd": ["child-exe", ...],
+          "cmd": "child-exe",
+          "args": [],
           "pid": 4567
       },
       ...
