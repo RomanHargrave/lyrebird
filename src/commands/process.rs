@@ -34,5 +34,5 @@ pub fn start_process(log: &mut Log, params: &StartProcessArgs) -> OrErrorBox {
       "pid":  child.id()
     }))
     // And then place the extracted data in the log
-    .and_then(|rec| log.record_action("StartProcess", &rec))
+    .and_then(|rec| log.record_action("Exec", &rec))
 }

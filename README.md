@@ -50,7 +50,7 @@ Log records conform to the following structure:
 `type` may contain the following values, for which `data` has
 differing members:
 
-- `StartProcess` events are logged when process creation (execution)
+- `Exec` events are logged when process creation (execution)
   is attempted. Logged data includes the child process command line,
   as well as the child process PID, as follows:
   ```json
