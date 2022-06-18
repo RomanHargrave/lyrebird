@@ -8,6 +8,7 @@
 use std::{process, env};
 use std::io::Write;
 use std::error::Error;
+use std::boxed::Box;
 
 use serde_json::json;
 use serde::Serialize;
@@ -17,15 +18,15 @@ use time::format_description::well_known::Rfc3339;
 
 use crate::platform::get_username;
 
-pub struct Log<W: Write> {
-  writer: W,
+pub struct Log {
+  writer: Box<dyn Write>,
   username: Option<String>,
   cmdline: Vec<String>
 }
 
-impl<W: Write> Log<W> {
+impl Log {
   /// Create a new Logger, `writer` implements `Write` and will be the destination for log records.
-  pub fn new(writer: W) -> Log<W> {
+  pub fn new(writer: Box<dyn Write>) -> Log {
     Log {
       writer,
       
