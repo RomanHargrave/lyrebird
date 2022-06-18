@@ -15,7 +15,7 @@ const LB_FILE_CONTENT: &str = "Hello from Lyrebird!\n";
 /// File action logging helper. Places {"type": "file"} entries in the
 /// log with appropriate data
 fn record_file_action(log: &mut Log, action: &str, path: &str) -> OrErrorBox {
-  log.record_action("file", json!({
+  log.record_action("File", json!({
     "action": action,
     "file": path
   }))
