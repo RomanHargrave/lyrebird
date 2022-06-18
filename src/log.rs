@@ -7,8 +7,10 @@
 
 use std::{process, env};
 use std::io::Write;
+use std::error::Error;
 
 use serde_json::json;
+use serde::Serialize;
 
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
@@ -22,6 +24,7 @@ pub struct Log<W: Write> {
 }
 
 impl<W: Write> Log<W> {
+  /// Create a new Logger, `writer` implements `Write` and will be the destination for log records.
   pub fn new(writer: W) -> Log<W> {
     Log {
       writer,
@@ -35,21 +38,36 @@ impl<W: Write> Log<W> {
       cmdline: env::args().collect(),
     }
   }
-  
-  pub fn record_action(&mut self, record_type: &str, data: Option<serde_json::Value>) {
-    let ts = OffsetDateTime::now_utc().format(&Rfc3339).unwrap();
 
-    let record = json!({
-      "type": record_type,
-      "time": ts,
-      "pid": process::id(),
-      "user": &self.username,
-      "cmd": &self.cmdline,
-      "data": data,
-    });
-
-    serde_json::to_writer(&mut self.writer, &record).unwrap();
-    self.writer.write_all("\n".as_bytes()).unwrap();
+  /// Place an entry in the log file, where "type" is `record_type`
+  /// and "data" is `data`. `data` must implement `serde::Serialize`.
+  pub fn record_action<D: Serialize>(&mut self, record_type: &str, data: D) -> Result<(), Box<dyn Error>> {
+    // Try to format the current time in UTC as Rcf3339 (strict
+    // compatible with ISO8601), place it into an object having the
+    // general entry structure, try to write that to the log output,
+    // and then try to write a newline.
+    OffsetDateTime::now_utc()
+      .format(&Rfc3339)
+      .map_err(|e| e.into())
+      // Create the record object
+      .map(|ts| json!({
+        "type": record_type,
+        "time": ts,
+        "pid":  process::id(),
+        "user": &self.username,
+        "cmd":  &self.cmdline,
+        "data": data,
+      }))
+      // Write the record
+      .and_then(|entry|
+        serde_json::to_writer(&mut self.writer, &entry)
+          .map_err(|e| e.into())
+      )
+      // Write the newline
+      .and_then(|()|
+        self.writer.write_all("\n".as_bytes())
+          .map_err(|e| e.into())
+      )
   }
 }
 
