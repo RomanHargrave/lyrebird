@@ -65,3 +65,77 @@ impl NetCommands {
     }
   }
 }
+
+#[cfg(test)]
+mod test {
+  use super::*;
+
+  use crate::test_helpers::get_test_log;
+
+  use std::net::TcpListener;
+  use std::sync::mpsc;
+  use std::sync::mpsc::{Sender, Receiver};
+  use std::thread;
+  use std::io::Read;
+  use std::time::Duration;
+
+  // Use something in the loopback range less likely to have bindings
+  // (though we can't avoid applications with bindings to all
+  // interfaces - as such, this may be strictly reliable only in
+  // Docker)
+  const TCP_LISTEN_SOCK: &str = "127.0.0.5:9876";
+
+  /// Number of seconds to wait for response from listen thread
+  const RESPONSE_WAIT: u64 = 5;
+
+  /// Test net-send tcp by effectively calling the command and asking
+  /// to send data to a TCP socket in another thread, and then check
+  /// the data it was asked to send against the data received by the
+  /// listener.
+  #[test]
+  fn test_net_send_tcp() {
+    let (to_test, from_listener): (Sender<String>, Receiver<String>) =
+      mpsc::channel();
+
+    // Start a listener that will except some data and exit at EOF
+    let listen_thread = thread::spawn(move || {
+      let listener = TcpListener::bind(TCP_LISTEN_SOCK)
+        .expect(&format!("Could not start listener on {}", TCP_LISTEN_SOCK));
+
+      // wait for the connection from lyrebird
+      let (ref mut in_stream, _) = listener.accept()
+        .expect("Unable to accept connection");
+
+      let mut data = String::new();
+
+      // suck up data from client
+      in_stream.read_to_string(&mut data)
+               .expect("Unable to read data from peer");
+
+      to_test.send(data)
+        .expect("Unable to send peer data to test thread");
+    });
+
+    let mut log = get_test_log();
+
+    // set up our net-send command
+    let tcp_message = TcpMessage {
+      dest: String::from(TCP_LISTEN_SOCK),
+      data: String::from(DEFAULT_MESSAGE),
+      timeout: 10
+    };
+
+    tcp_message.send(&mut log)
+               .expect("Could not send TCP message");
+
+    // check the message that was sent
+    let recv_data = from_listener.recv_timeout(Duration::from_secs(RESPONSE_WAIT))
+                                 .expect("Did not get data from listen thread");
+
+    assert_eq!(recv_data, DEFAULT_MESSAGE,
+               "Data received by TCP listener did not match data sent by net-send tcp");
+
+    listen_thread.join()
+      .expect("Could not join test listen thread to test thread");
+  }
+}
