@@ -99,7 +99,7 @@ impl FileCommand {
 #[cfg(test)]
 mod test {
   use super::*;
-  use std::{io, fs};
+  use std::fs;
   use crate::test_helpers::*;
 
   #[test]
@@ -133,7 +133,9 @@ mod test {
     let md_before =
       fs::metadata(&test_file).expect("could not get metadata for test file");
 
-    // wait 1s to ensure measurable difference in mtime
+    // wait 1s to ensure measurable difference in mtime, especially on
+    // systems with second-resolution file times (if there are still
+    // any)
     std::thread::sleep(Duration::from_secs(1));
     modify(&mut log, &test_file).expect("could not modify test file");
 
