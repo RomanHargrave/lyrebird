@@ -110,7 +110,11 @@ mod test {
     // don't care if this fails (test file may not exist already)
     let _ = remove_file(&test_file);
 
-    create(&mut log, &test_file).expect("create() failed");
+    let cmd = FileCommand::Create(FileArgs {
+      path: test_file.clone()
+    });
+
+    cmd.dispatch(&mut log).expect("create() failed");
 
     let md = fs::metadata(&test_file).expect("could not get metadata for test file");
 
@@ -137,7 +141,12 @@ mod test {
     // systems with second-resolution file times (if there are still
     // any)
     std::thread::sleep(Duration::from_secs(1));
-    modify(&mut log, &test_file).expect("could not modify test file");
+
+    let cmd = FileCommand::Modify(FileArgs {
+      path: test_file.clone()
+    });
+
+    cmd.dispatch(&mut log).expect("could not modify test file");
 
     let md_after =
       fs::metadata(&test_file).expect("could not get metadata for test file after modify");
@@ -158,7 +167,11 @@ mod test {
     let _ = remove_file(&test_file);
     create(&mut log, &test_file).expect("create() failed");
 
-    delete(&mut log, &test_file).expect("delete() failed");
+    let cmd = FileCommand::Delete(FileArgs {
+      path: test_file.clone()
+    });
+
+    cmd.dispatch(&mut log).expect("delete() failed");
 
     // does the file exist?
     assert!(check_file_missing(&test_file),
