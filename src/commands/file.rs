@@ -100,26 +100,11 @@ impl FileCommand {
 mod test {
   use super::*;
   use std::{io, fs};
-  use std::path::PathBuf;
-  use random_string;
-
-  #[inline]
-  fn get_log() -> Log {
-    Log::new(Box::new(std::io::sink()))
-  }
-
-  fn get_test_filename() -> String {
-    let mut buf = PathBuf::new();
-
-    buf.push("/tmp");
-    buf.push(random_string::generate(16, "abcdefghijklmnopqrstuvwxyz123456789"));
-
-    String::from(buf.to_str().unwrap())
-  }
+  use crate::test_helpers::*;
 
   #[test]
   fn test_create_file() {
-    let mut log = get_log();
+    let mut log = get_test_log();
     let test_file = get_test_filename();
 
     // don't care if this fails (test file may not exist already)
@@ -138,7 +123,7 @@ mod test {
   fn test_modify_file() {
     use std::time::Duration;
 
-    let mut log = get_log();
+    let mut log = get_test_log();
     let test_file = get_test_filename();
 
     // ensure file exists
@@ -161,7 +146,7 @@ mod test {
 
   #[test]
   fn test_remove_file() {
-    let mut log = get_log();
+    let mut log = get_test_log();
     let test_file = get_test_filename();
 
     // ensure file exists

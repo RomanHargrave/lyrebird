@@ -19,13 +19,16 @@ use crate::log::Log;
 mod commands;
 use crate::commands::LyrebirdCli;
 
+#[cfg(test)]
+mod test_helpers;
+
 pub type OrErrorBox = Result<(), Box<dyn Error>>;
 
 fn guess_log_file() -> String {
   env::vars()
     .find(|(k, _)| k == "LYREBIRD_LOG")
     .map(|(_, v)| v)
-    .unwrap_or_else(|| String::from(platform::LOG_FILE))
+    .unwrap_or_else(platform::get_log_file_path)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {

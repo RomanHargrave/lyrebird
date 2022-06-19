@@ -18,7 +18,12 @@ use std::ffi::CStr;
 const PWBUF_MAX_SIZE: usize = 8192;
 const PWBUF_GROW_FAC: usize = 2048;
 
-pub const LOG_FILE: &str = "/tmp/lyrebird.log";
+const LOG_FILE: &str = "/tmp/lyrebird.log";
+
+/// Get the log file path
+pub fn get_log_file_path() -> String {
+  String::from(LOG_FILE)
+}
 
 /// create a `passwd` (`/etc/passwd` entry) structure typical of the Linux layout
 #[cfg(target_os = "linux")]

@@ -16,4 +16,4 @@ random-string = "1.0.0"
 libc = "0.2.126"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.37.0", features = [ "Win32_Foundation", "Win32_System_WindowsProgramming" ] }
+windows = { version = "0.37.0", features = [ "Win32_Foundation", "Win32_System_WindowsProgramming", "Win32_System_Environment" ] }
