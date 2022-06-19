@@ -142,6 +142,9 @@ mod test {
 
     assert!(md_before.modified().unwrap() < md_after.modified().unwrap(), "modified time did not increment");
     assert!(md_before.len() < md_after.len(), "file size did not increase after modification (append)");
+
+    // clean up
+    let _ = remove_file(&test_file);
   }
 
   #[test]
