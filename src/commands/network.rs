@@ -85,6 +85,8 @@ mod test {
   // Docker)
   const TCP_LISTEN_SOCK: &str = "127.0.0.5:9876";
 
+  const MSG_THREAD_READY: &str = "ready";
+
   /// Number of seconds to wait for response from listen thread
   const RESPONSE_WAIT: u64 = 5;
 
@@ -102,6 +104,10 @@ mod test {
       let listener = TcpListener::bind(TCP_LISTEN_SOCK)
         .expect(&format!("Could not start listener on {}", TCP_LISTEN_SOCK));
 
+      // Notify test that listener is ready to avoid race failure
+      to_test.send(String::from(MSG_THREAD_READY))
+        .expect("Unable to send ready string to test thread");
+
       // wait for the connection from lyrebird
       let (ref mut in_stream, _) = listener.accept()
         .expect("Unable to accept connection");
@@ -115,6 +121,14 @@ mod test {
       to_test.send(data)
         .expect("Unable to send peer data to test thread");
     });
+
+    // Wait for listener thread to start accepting
+    match from_listener.recv_timeout(Duration::from_secs(RESPONSE_WAIT)) {
+      Ok(str) =>
+        assert_eq!(str, MSG_THREAD_READY, "Thread responded with unexpected message"),
+      Err(e) =>
+        panic!("Unable to get ready message from listener thread: {:?}", e)
+    };
 
     let mut log = get_test_log();
 
