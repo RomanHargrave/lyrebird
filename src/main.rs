@@ -6,7 +6,7 @@
 extern crate core;
 
 use std::env;
-use std::io::stdout;
+use std::fs::File;
 use std::error::Error;
 
 use clap::Parser;
@@ -29,7 +29,12 @@ fn guess_log_file() -> String {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-  let mut log = Log::new(Box::new(stdout()));
+  let mut log = File::options()
+    .create(true)
+    .write(true)
+    .append(true)
+    .open(guess_log_file())
+    .map(|f| Log::new(Box::new(f)))?;
 
   LyrebirdCli::parse().dispatch(&mut log)
 }
