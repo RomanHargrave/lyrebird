@@ -7,6 +7,7 @@ COPY src/ ./src
 
 RUN apk update \
    && apk add libc-dev \
+   && cargo test \
    && cargo build -r
 
 FROM alpine
