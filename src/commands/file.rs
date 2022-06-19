@@ -96,4 +96,84 @@ impl FileCommand {
   }
 }
 
+#[cfg(test)]
+mod test {
+  use super::*;
+  use std::{io, fs};
+  use std::path::PathBuf;
+  use random_string;
 
+  #[inline]
+  fn get_log() -> Log {
+    Log::new(Box::new(std::io::sink()))
+  }
+
+  fn get_test_filename() -> String {
+    let mut buf = PathBuf::new();
+
+    buf.push("/tmp");
+    buf.push(random_string::generate(16, "abcdefghijklmnopqrstuvwxyz123456789"));
+
+    String::from(buf.to_str().unwrap())
+  }
+
+  #[test]
+  fn test_create_file() {
+    let mut log = get_log();
+    let test_file = get_test_filename();
+
+    // don't care if this fails (test file may not exist already)
+    let _ = remove_file(&test_file);
+
+    create(&mut log, &test_file).expect("create() failed");
+
+    let md = fs::metadata(&test_file).expect("could not get metadata for test file");
+
+    assert!(md.is_file(), "create() did not create regular file at {}", &test_file);
+
+    remove_file(&test_file).expect("could not remove test file");
+  }
+
+  #[test]
+  fn test_modify_file() {
+    use std::time::Duration;
+
+    let mut log = get_log();
+    let test_file = get_test_filename();
+
+    // ensure file exists
+    let _ = remove_file(&test_file);
+    create(&mut log, &test_file).expect("create() failed");
+
+    let md_before =
+      fs::metadata(&test_file).expect("could not get metadata for test file");
+
+    // wait 1s to ensure measurable difference in mtime
+    std::thread::sleep(Duration::from_secs(1));
+    modify(&mut log, &test_file).expect("could not modify test file");
+
+    let md_after =
+      fs::metadata(&test_file).expect("could not get metadata for test file after modify");
+
+    assert!(md_before.modified().unwrap() < md_after.modified().unwrap(), "modified time did not increment");
+    assert!(md_before.len() < md_after.len(), "file size did not increase after modification (append)");
+  }
+
+  #[test]
+  fn test_remove_file() {
+    let mut log = get_log();
+    let test_file = get_test_filename();
+
+    // ensure file exists
+    let _ = remove_file(&test_file);
+    create(&mut log, &test_file).expect("create() failed");
+
+    delete(&mut log, &test_file).expect("delete() failed");
+
+    // does the file exist?
+    match fs::metadata(&test_file) {
+      Err(e) if e.kind() == io::ErrorKind::NotFound => (),
+      x @ _ => panic!("expected io::Error NotFound for fs::metadata({}) but got {:?} instead", test_file, x)
+    }
+  }
+}

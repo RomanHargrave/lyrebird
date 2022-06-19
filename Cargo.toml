@@ -9,6 +9,8 @@ cfg-if = "1.0.0"
 serde_json = "1.0.0"
 serde = { version = "1.0.137", features = ["derive"] }
 time = { version = "0.3.9", features = ["formatting"] }
+# used only in test configuration, but cannot select according to https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+random-string = "1.0.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.126"
