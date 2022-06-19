@@ -23,7 +23,7 @@ pub enum Commands {
   File(file::FileCommand),
   
   /// Start a process
-  Exec(process::StartProcessArgs),
+  Exec(process::StartProcess),
   
   /// Send data over the network
   #[clap(subcommand)]
@@ -34,7 +34,7 @@ impl LyrebirdCli {
   pub fn dispatch(&self, log: &mut Log) -> OrErrorBox {
     match &self.command {
       Commands::File(file_cmd) => file_cmd.dispatch(log),
-      Commands::Exec(args)     => process::start_process(log, args),
+      Commands::Exec(exec)     => exec.start_process(log),
       Commands::NetSend(net)   => net.dispatch(log)
     }
   }
