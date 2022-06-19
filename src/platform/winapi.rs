@@ -7,6 +7,9 @@ use std::string::String;
 use windows::core::PWSTR;
 use windows::Win32::System::WindowsProgramming::GetUserNameW;
 
+// TODO: for %TMP% support on windows, it will be necessary
+// to refactor this into get_log_path() -> Option<String> and
+// use (unsafe) ExpandEnvironmentStringsW to compute the path.
 pub const LOG_FILE: &str = "lyrebird.log";
 
 pub fn get_username() -> Option<String> {

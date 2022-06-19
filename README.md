@@ -28,7 +28,9 @@ platform; however, a different location may be specified by setting
 the `LYREBIRD_LOG` environment variable.
 
 - On Linux, the log file is stored at `/tmp/lyrebird.log`
-- On Windows, the log file is stored at `%TEMP%/lyrebird.log`
+- On Windows, the log file is stored at `lyrebird.log` in the working
+  directory. Setting `LYREBIRD_LOG` is required for consistent
+  placement.
 
 ### Log Record Structure
 
