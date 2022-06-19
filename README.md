@@ -15,6 +15,22 @@ Lyrebird exposes features through subcommands, one for each feature.
 Full usage details are provided by Lyrebird itself, by running
 `lyrebird help`.
 
+Subcommands are:
+
+- `net-send tcp <IP:PORT> [message]` which will send a short message
+  over TCP to the destination address at the given port. IPv6 is
+  supported.
+- `file delete|create|modify <FILE>` which will create, delete, or
+  append to a given file.
+- `exec <EXE> [args...]` which will start a program with optional
+  arguments.
+
+## Platform Support
+
+Lyrebird has been tested on Windows and Linux. Platform-specific
+features are known to work on macOS, but the entire package has not
+been tested on macOS.
+
 ## Logging
 
 Events are logged as a series of records, specifically as a series of
@@ -27,7 +43,8 @@ By default, the log file is located as described below for each
 platform; however, a different location may be specified by setting
 the `LYREBIRD_LOG` environment variable.
 
-- On Linux, the log file is stored at `/tmp/lyrebird.log`
+- On Linux (and possibly other \*nix family members and cousins), the
+  log file is stored at `/tmp/lyrebird.log`.
 - On Windows, the log file is stored at `lyrebird.log` in the working
   directory. Setting `LYREBIRD_LOG` is required for consistent
   placement.
