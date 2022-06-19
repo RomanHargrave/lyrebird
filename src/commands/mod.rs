@@ -33,7 +33,7 @@ pub enum Commands {
 impl LyrebirdCli {
   pub fn dispatch(&self, log: &mut Log) -> OrErrorBox {
     match &self.command {
-      Commands::File(file_cmd) => file::handle_command(log, file_cmd),
+      Commands::File(file_cmd) => file_cmd.dispatch(log),
       Commands::Exec(args)     => process::start_process(log, args),
       Commands::NetSend(net)   => net.dispatch(log)
     }

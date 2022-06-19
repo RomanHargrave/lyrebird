@@ -80,16 +80,20 @@ pub enum FileCommand {
   Modify(FileArgs),
 }
 
-pub fn handle_command(log: &mut Log, cmd: &FileCommand) -> OrErrorBox {
-  match cmd {
-    FileCommand::Create(args) => create(log, &args.path),
-    FileCommand::Modify(args) =>
-      args.abspath()
-          .map_err(|e| e.into())
-          .and_then(|path| modify(log, &path)),
-    FileCommand::Delete(args) =>
-      args.abspath()
-          .map_err(|e| e.into())
-          .and_then(|path| delete(log, &path)),
+impl FileCommand {
+  pub fn dispatch(&self, log: &mut Log) -> OrErrorBox {
+    match self {
+      FileCommand::Create(args) => create(log, &args.path),
+      FileCommand::Modify(args) =>
+        args.abspath()
+            .map_err(|e| e.into())
+            .and_then(|path| modify(log, &path)),
+      FileCommand::Delete(args) =>
+        args.abspath()
+            .map_err(|e| e.into())
+            .and_then(|path| delete(log, &path)),
+    }
   }
 }
+
+
