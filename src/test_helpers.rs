@@ -3,6 +3,8 @@
 
 use crate::log::Log;
 
+use std::fs;
+use std::io;
 use random_string;
 
 /// Get a logger that writes to nowhere
@@ -17,4 +19,14 @@ pub fn get_test_filename() -> String {
   file_name.push_str(&random_string::generate(16, "abcdefghijklmnopqrstuvwxyz123456789"));
 
   file_name
+}
+
+/// Return true if a file does not exist. Tests file existence by
+/// trying to get metadata and expecting io::ErrorKind::NotFound. Any
+/// other error or Ok(_) will yield a negative result.
+pub fn check_file_missing(file: &str) -> bool {
+  match fs::metadata(file) {
+    Err(e) => e.kind() == io::ErrorKind::NotFound,
+    _ => false
+  }
 }

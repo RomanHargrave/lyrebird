@@ -159,9 +159,7 @@ mod test {
     delete(&mut log, &test_file).expect("delete() failed");
 
     // does the file exist?
-    match fs::metadata(&test_file) {
-      Err(e) if e.kind() == io::ErrorKind::NotFound => (),
-      x @ _ => panic!("expected io::Error NotFound for fs::metadata({}) but got {:?} instead", test_file, x)
-    }
+    assert!(check_file_missing(&test_file),
+            "expected file {} to not exist after delete() but it still does", test_file)
   }
 }
