@@ -10,13 +10,13 @@ occasion to put Rust to work, and to learn by doing.
 
 I certainly became more closely acquainted with Rust than I had
 previously been. Certain patterns that are common in Rust (such as the
-combinatorial approach to emptiness and error handling) I had already
-been familiar with from other languages, such as Scala. The
-borrow-checker was new (and is much disdained, so I hear, by
-newcomers), but anticipated, and I had no issue "thinking like the
-compiler". There were incidents where I did things such as try to move
-members of a structure, but the tooling feedback cycle was quick
-(thanks rls, and to some degree JetBrains) and I corrected those
+combinatorial approach that may be taken to emptiness and error
+handling) I had already been familiar with from other languages, such
+as Scala. The borrow-checker was new (and is much disdained, so I
+hear, by newcomers), but anticipated, and I had no issue "thinking
+like the compiler". There were incidents where I did things such as
+try to move members of a structure, but the tooling feedback cycle was
+quick (thanks rls, and to some degree JetBrains) and I corrected those
 issues as soon as I noticed them.
 
 Amusingly, the first thing I worked on was username discovery. This is
@@ -47,6 +47,48 @@ fruitful and with some experimentation I was able to arrive at a
 robust solution. Overall, implementing this was a great ramp-up
 excercise.
 
+I particularly enjoyed the integrated, first-class approach to testing
+and discovered some minor issues with things such as the `exec`
+subcommand through testing, as well as had the opportunity to do some
+basic threading and cross-thread communication when testing the
+`net-send tcp` feature. Overall, this left me with a good impression
+of Rust - things were approachable and well-documented.
+
+## What did you think of the assignment?
+
+The core of the assignment was quite simple. I made more work for
+myself by implementing this with a language I have not used before,
+but was able to quickly learn my way around. I do not doubt that I
+will receive some constructive feedback in the review round, and would
+not be suprised if I had done some un-idiomatic things. Overall, it's
+an excellent assessment - it helps to determine the level of
+flexibility one has as an engineer; e.g. if you interview someone and
+discuss primarily web development with them, it helps to assess
+whether they can work outside the domain of some framework or paradigm
+and build something that they may not usually have to build.
+
+## What about all the dependencies?
+
+OK, yes, I will admit that I did rely on a few crates here. `windows`
+and `libc` are massively overkill for single functions - I could
+absolutely have declared and linked them myself; however, having the
+bindings already available sped things up somewhat. Serde and
+Serde-json are perhaps like using a piledriver to hang pictures, but
+allowed for rapid development of a structured logging component in
+addition to being well-supported and mature - and building my own JSON
+emitter was out of the question. Also in the rapid development
+department was `clap`, which provided a way to quickly build a
+command-line interface with minimal tedium. As a bonus, the
+`clap_derive` interface allows for command testing, in a way. `time`
+and `random-string` are used largely to smooth over items
+(understandably) missing from the standard library, time formatting
+and random temporary file creation; the latter of the two could be
+more easily implemented than the former, but its immediate
+availability was the sell here.
+
+Spending some time to streamline dependencies and internalize some
+behavior could help to reduce overall compile time and artifact size,
+but for what was needed this was generally good enough.
 
 ## Rationale: Why Rust?
 
